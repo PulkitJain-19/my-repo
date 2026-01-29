@@ -1,0 +1,120 @@
+/* =========================================================== */
+/* Graph Dialog (Fragment)                                     */
+/* =========================================================== */
+
+onOpenGraphDialog: function (oEvent) {
+    const oView = this.getView();
+
+    if (!this._oGraphDialog) {
+        this._oGraphDialog = sap.ui.core.Fragment.load({
+            id: oView.getId(),
+            name: "com.app.view.fragments.GraphDialog",
+            controller: this
+        }).then(function (oDialog) {
+            oView.addDependent(oDialog);
+            return oDialog;
+        });
+    }
+
+    this._oGraphDialog.then(function (oDialog) {
+        this._prepareGraphData(oEvent);
+        oDialog.open();
+    }.bind(this));
+},
+
+onCloseGraphDialog: function () {
+    this.byId("realTimeGraphDialog").close();
+},
+
+/* =========================================================== */
+/* Graph Data Preparation                                      */
+/* =========================================================== */
+
+_prepareGraphData: function (oEvent) {
+
+    // Example: get selected row context (optional)
+    let oContext;
+    if (oEvent && oEvent.getSource().getBindingContext()) {
+        oContext = oEvent.getSource().getBindingContext();
+    }
+
+    // Mock / derived graph data (replace later with backend logic)
+    const aGraphData = [
+        { Month: "Jan", RealTime: 88.25, Overtime: 11.06 },
+        { Month: "Feb", RealTime: 86.92, Overtime: 5.42 },
+        { Month: "Mar", RealTime: 71.96, Overtime: 4.22 },
+        { Month: "Apr", RealTime: 90.71, Overtime: 10.63 },
+        { Month: "May", RealTime: 83.40, Overtime: 18.89 },
+        { Month: "Jun", RealTime: 77.31, Overtime: 9.06 },
+        { Month: "Jul", RealTime: 87.20, Overtime: 7.94 },
+        { Month: "Aug", RealTime: 86.05, Overtime: 14.43 },
+        { Month: "Sep", RealTime: 84.47, Overtime: 13.94 },
+        { Month: "Oct", RealTime: 64.64, Overtime: 3.94 },
+        { Month: "Nov", RealTime: 57.90, Overtime: 0.00 },
+        { Month: "Dec", RealTime: 58.16, Overtime: 0.00 }
+    ];
+
+    const oGraphModel = new sap.ui.model.json.JSONModel({
+        graphData: aGraphData
+    });
+
+    this.getView().setModel(oGraphModel);
+},
+
+/* =========================================================== */
+/* VizFrame Configuration (after rendering)                    */
+/* =========================================================== */
+
+onAfterRendering: function () {
+    this._applyVizProperties();
+},
+
+_applyVizProperties: function () {
+
+    const oVizFrame = this.byId("realTimeVizFrame");
+    if (!oVizFrame) {
+        return;
+    }
+
+    oVizFrame.setVizProperties({
+        plotArea: {
+            dataLabel: {
+                visible: false
+            },
+            marker: {
+                visible: true
+            },
+            dataShape: {
+                primaryAxis: ["line"],
+                secondaryAxis: ["line"]
+            }
+        },
+        valueAxis: {
+            title: {
+                visible: true,
+                text: "Real Time %"
+            },
+            min: 0,
+            max: 100
+        },
+        valueAxis2: {
+            title: {
+                visible: true,
+                text: "Overtime %"
+            },
+            min: 0,
+            max: 20
+        },
+        categoryAxis: {
+            title: {
+                visible: false
+            }
+        },
+        legend: {
+            visible: true
+        },
+        title: {
+            visible: false
+        }
+    });
+}
